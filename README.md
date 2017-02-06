@@ -6,3 +6,5 @@ The command line takes in two arguments: host and port number.
 
 #To run:
 make run
+
+* Finished with partner: Ray M.S. Roh

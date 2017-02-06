@@ -316,23 +316,43 @@ public class CSftp {
         }
     }
 
+    // helper function for getRemote
+    // check to see if data type is binary
+    private static boolean binType(){
+        sendString("TYPE I");
+        Response r = controlNext();
+
+        switch (r.code) {
+            case 200: // all good
+                return true;
+            default: // 5xx and 4xx are errors
+                handleError("0xFFFF", r.message);
+                return false;
+        }
+    }
+
     // establish a data connection and retrieves the file indicated
     // by REMOTE, saving it in a file of the same name on the local machine
     private static void getRemote(String filename) {
 
         if (establishConnection()) {
-            sendString(String.format("RETR %s", filename));
-            Response r = controlNext();
+            if (binType()) {
+                sendString(String.format("RETR %s", filename));
+                Response r = controlNext();
 
-            switch (r.code) {
-                case 125: // data connection opened already, transfer starting
-                case 150: // file status ok, about to open data connection.
-                    saveFile(filename);
+                switch (r.code) {
+                    case 125: // data connection opened already, transfer starting
+                    case 150: // file status ok, about to open data connection.
+                        saveFile(filename);
                     break;
-                default: // 550
-                    handleError("0xFFFF");
+                    default: // 550
+                        handleError("0xFFFF", r.message);
                     break;
+                }
+            } else { 
+                handleError("0xFFFD"); // data transfer error
             }
+            
         }
     }
 
@@ -344,7 +364,7 @@ public class CSftp {
         Response r = controlNext();
         switch (r.code) {
             case 200: // Command okay.
-            case 250: // Requested file action okay, completed.
+            case 250: 
                 // all good!
                 break;
             default: // 500, 501, 502, 421, 530, 550
@@ -405,7 +425,7 @@ public class CSftp {
                     handleError("0x38E");
                     break;
                 default: // 500, 501, 502, 421, 530
-                    handleError(listResp.code, listResp.message);
+                    handleError("0xFFFF", listResp.message);
                     break;
             }
         }

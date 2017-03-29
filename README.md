@@ -5,6 +5,8 @@ The command line FTP is a simple implementation for Dr. Acton's UBC CS317 Comput
 The command line takes in two arguments: host and port number.
 
 ### To run:
+```bash
 make run
+```
 
 *Finished with partner: Ray M.S. Roh*
